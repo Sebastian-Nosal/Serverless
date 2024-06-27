@@ -2,7 +2,7 @@
 
 const AWS = require('aws-sdk'); 
 const crypto = require('crypto')
-const docClient = AWS.DynamoDb.DocumentClient()
+const docClient = new AWS.DynamoDB.DocumentClient();
 
 const builder = data => {
   if (data.title&&data.author&&data.genre)
@@ -28,30 +28,30 @@ module.exports.get = async event => {
 }
 
 module.exports.add = async event => {
-    const body = JSON.parse(event.body)
-    const book = builder(body)
-    try
-    {
-      await docClient.put({
-        TableName: 'books',
-        Item: book
-      }).promise()
-      return {
-        StatusCode: 200,
-        body: JSON.stringify({
-          book
-        })
-      }
-    }
-    catch 
-    {
-      return {
-        StatusCode: 400,
-        body: JSON.stringify({
-          msg: "Error Occured"
-        })
+  const body = JSON.parse(event.body)
+  const book = builder(body)
+  try
+  {
+    await docClient.put({
+      TableName: 'books',
+      Item: book
+    }).promise()
+    return {
+      StatusCode: 200,
+      body: JSON.stringify({
+        book
+      })
     }
   }
+  catch 
+  {
+    return {
+      StatusCode: 400,
+      body: JSON.stringify({
+        msg: "Error Occured"
+      })
+    }
+  } 
 }
 
   
