@@ -1,0 +1,58 @@
+service: books-api
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-central-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource: "*"
+
+resources:
+  Resources:
+    ProductsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: books
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        AttributeDefinitions:
+          - AttributeName: book
+            AttributeType: S
+        KeySchema:
+          - AttributeName: book
+            KeyType: HASH
+
+functions:
+  get:
+    handler: handler.get
+    events:
+      - http:
+          path: /books
+          method: get
+  add:
+    handler: handler.add
+    events:
+      - http:
+          path: /books
+          method: post
+  put:
+    handler: handler.put
+    events:
+      - http:
+          path: /books
+          method: put
+  delete:
+    handler: handler.delete
+    events:
+      - http:
+          path: /books
+          method: delete

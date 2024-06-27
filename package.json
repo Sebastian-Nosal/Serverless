@@ -1,0 +1,19 @@
+{
+  "name": "products-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^2.3.2",
+    "serverless": "^2.52.1"
+  },
+  "dependencies": {
+    "aws-lambda": "^1.0.6",
+    "aws-sdk": "^2.953.0"
+  }
+}
