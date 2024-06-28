@@ -39,7 +39,10 @@ module.exports.add = async event => {
         })
       } 
     }
-    docClient.put()
+    docClient.put({
+      TableName: 'books',
+      Item: book
+    })
     .then(data=>{
       return {
         statusCode: 200,
@@ -58,7 +61,6 @@ module.exports.add = async event => {
         })
       }
     })
-
 }
 
   
