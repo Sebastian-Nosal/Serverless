@@ -22,42 +22,49 @@ const builder = data => {
 module.exports.get = async event => {
 
   return {
-    StatusCode: 200,
+    statusCode: 200,
     body: "Hello World"
   };
 }
 
 module.exports.add = async event => {
-  const body = JSON.parse(event.body)
-  const book = builder(body)
-  try
-  {
-    await docClient.put({
-      TableName: 'books',
-      Item: book
-    }).promise()
-    return {
-      StatusCode: 200,
-      body: JSON.stringify({
-        book
-      })
+    const body = JSON.parse(event.Body);
+    const book = builder(body);
+    if(!book)
+    {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          msg: 'Missing Required Parameter(s)'
+        })
+      } 
     }
-  }
-  catch 
-  {
-    return {
-      StatusCode: 400,
-      body: JSON.stringify({
-        msg: "Error Occured"
-      })
-    }
-  } 
+    docClient.put()
+    .then(data=>{
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          book:book,
+          data: data
+        }),
+      }
+    })
+    .catch(err=>{
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          bd: body,
+          err: err
+        })
+      }
+    })
+
 }
 
   
 module.exports.put = async event => {
   return {
-    StatusCode: 404,
+    statusCode: 404,
     body: JSON.stringify({
       msg: "Not implemented"
     })
@@ -67,7 +74,7 @@ module.exports.put = async event => {
   
 module.exports.delete = async event => {
   return {
-    StatusCode: 404,
+    statusCode: 404,
     body: JSON.stringify({
       msg: "Error Occured"
     })
