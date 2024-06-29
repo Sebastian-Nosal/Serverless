@@ -13,6 +13,9 @@ provider:
         - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:CreateTable
+        - dynamodb:DeleteItem  # Dodaj to uprawnienie
+        - dynamodb:DescribeTable  # Dodaj to uprawnienie
       Resource: "*"
 
 resources:
@@ -20,39 +23,47 @@ resources:
     ProductsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: books
+        TableName: Books
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         AttributeDefinitions:
-          - AttributeName: book
+          - AttributeName: id
             AttributeType: S
         KeySchema:
-          - AttributeName: book
+          - AttributeName: id
             KeyType: HASH
 
 functions:
-  get:
-    handler: handler.get
+  list:
+    handler: bookHandler.list
     events:
       - http:
           path: /books
           method: get
-  add:
-    handler: handler.add
+
+  get:
+    handler: bookHandler.get
+    events:
+      - http:
+          path: /books/{id}
+          method: get
+    
+  post:
+    handler: bookHandler.create
     events:
       - http:
           path: /books
           method: post
   put:
-    handler: handler.put
+    handler: bookHandler.createOrUpdate
     events:
       - http:
-          path: /books
+          path: /books/{id}
           method: put
   delete:
-    handler: handler.delete
+    handler: bookHandler.deleteById
     events:
       - http:
-          path: /books
+          path: /books/{id}
           method: delete
