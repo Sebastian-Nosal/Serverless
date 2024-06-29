@@ -24,37 +24,54 @@ const bookBuilder = data => {
 module.exports.list = async (event) =>
 {
   const query = event.queryStringParameters
-  let searchParameters = {}
-  let flag = false
-  if(query.genre)
-  {
-    searchParameters.genre = query.genre
+  let searchParameters = {
+    FilterExpression: "",
+    ExpressionAttributeValues: {},
+  }
+
+  let filterExpressionParts = [];
+  let expressionAttributeNames = {};
+  let flag = false;
+
+  if (query && query.genre) {
+    filterExpressionParts.push('#genre = :genre');
+    searchParameters.ExpressionAttributeValues[':genre'] = query.genre;
+    expressionAttributeNames['#genre'] = 'genre'; 
     flag = true;
   }
 
-  if(query.author)
-    {
-      searchParameters.author = query.author
-      flag = true;
+  if (query && query.author) {
+    filterExpressionParts.push('#author = :author');
+    searchParameters.ExpressionAttributeValues[':author'] = query.author;
+    expressionAttributeNames['#author'] = 'author'; 
+    flag = true;
+  }
+
+  if (query && query.title) {
+    filterExpressionParts.push('#title = :title');
+    searchParameters.ExpressionAttributeValues[':title'] = query.title;
+    expressionAttributeNames['#title'] = 'title'; 
+    flag = true;
+  }
+
+  if (flag) {
+    searchParameters.FilterExpression = filterExpressionParts.join(' AND ');
+    searchParameters.ExpressionAttributeNames = expressionAttributeNames;
+  }
+
+    let list;
+    if (flag) {
+      list = await docClient.scan(
+        {
+          TableName: tableName,
+          ...searchParameters
+        }).promise();
+    } else {
+      list = await docClient.scan({TableName: tableName}).promise();
     }
 
-  if(query.title)
-    {
-      searchParameters.title = query.title
-      flag = true;
-    }
+    return Response._200(list.Items);
 
-  try
-  {
-    let list
-    if(flag) list = docClient.scan({TableName: tableName, Key:searchParameters}).promise();
-    else list = await docClient.scan({TableName: tableName}).promise();
-    return Response._200(list.Items)
-  }
-  catch(error)
-  {
-    return Response._500(err)
-  }
 }
 
 module.exports.get = async (event) =>{
