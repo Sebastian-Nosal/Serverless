@@ -23,9 +23,32 @@ const bookBuilder = data => {
 
 module.exports.list = async (event) =>
 {
+  const query = event.queryStringParameters
+  let searchParameters = {}
+  let flag = false
+  if(query.genre)
+  {
+    searchParameters.genre = query.genre
+    flag = true;
+  }
+
+  if(query.author)
+    {
+      searchParameters.author = query.author
+      flag = true;
+    }
+
+  if(query.title)
+    {
+      searchParameters.title = query.title
+      flag = true;
+    }
+
   try
   {
-    const list = await docClient.scan({TableName: tableName}).promise()
+    let list
+    if(flag) list = docClient.scan({TableName: tableName, Key:searchParameters}).promise();
+    else list = await docClient.scan({TableName: tableName}).promise();
     return Response._200(list.Items)
   }
   catch(error)
